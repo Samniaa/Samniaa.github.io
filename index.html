@@ -5,7 +5,7 @@
 <title>График смен</title>
 <meta name="apple-mobile-web-app-title" content="График смен">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#3b5bfd">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <style>
 :root{--bg:#f6f7fb;--card:#fff;--tx:#1c2333;--mut:#667089;--bd:#dde1ea;--ac:#2f5bd1;--d:#ffe08a;--n:#a9cdf2;--w:#e9ebf0;--we:#f4c4c4;--ok:#d6efc7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--card:#1b2030;--tx:#e8ebf3;--mut:#9aa3b8;--bd:#2d3447;--ac:#7ea2ff;--d:#6b5a1c;--n:#27507c;--w:#2a2f3d;--we:#5a2d2d;--ok:#2d4a25;color-scheme:dark}}
@@ -160,6 +160,146 @@ main{height:100dvh;overflow-y:auto}
 .c{height:clamp(54px,calc((100dvh - 470px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))/6),56px)}
 #pg>.act:not(#ed){max-height:calc(100dvh - 200px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea{-webkit-user-select:text;user-select:text}
+#rot{display:none}
+@media (orientation:landscape) and (max-height:500px){#rot{display:flex;position:fixed;inset:0;z-index:9999;background:var(--bg);color:var(--mut);align-items:center;justify-content:center;text-align:center;padding:20px;font-size:16px}}
+
+/* ===== iOS skin ===== */
+:root{--bg:#f2f2f7;--card:#fff;--tx:#000;--mut:#8e8e93;--bd:rgba(60,60,67,.16);--ac:#007aff;--w:#f2f2f7;--d:#ffe28a;--n:#b3d4ff;--ok:#d8f3de;--sh:none;--segon:#fff;--g:#34c759;--r:#ff3b30;--o:#ff9500}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--card:#1c1c1e;--tx:#fff;--mut:#98989f;--bd:rgba(84,84,88,.55);--ac:#0a84ff;--w:#2c2c2e;--d:#6b5a1c;--n:#27507c;--ok:#1f3a27;--sh:none;--segon:#636366}}
+:root[data-theme="dark"]{--bg:#000;--card:#1c1c1e;--tx:#fff;--mut:#98989f;--bd:rgba(84,84,88,.55);--ac:#0a84ff;--w:#2c2c2e;--d:#6b5a1c;--n:#27507c;--ok:#1f3a27;--sh:none;--segon:#636366}
+html,body{font-family:-apple-system,"SF Pro Text","SF Pro Display",system-ui,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+button{-webkit-appearance:none;appearance:none;font-family:inherit}
+button:active{transform:scale(.97);opacity:.7}
+input:focus,select:focus,textarea:focus{outline:none}
+
+/* карточки: inset grouped */
+.card{border-radius:18px;border:0;box-shadow:none}
+.card:not(#ed)>h2,.gh{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
+.gh{margin:18px 0 4px}.gh:first-child{margin-top:0}
+
+/* верхняя панель */
+.head{border-radius:0;max-width:520px;background:color-mix(in srgb,var(--bg) 72%,transparent);-webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px);box-shadow:none;border-bottom:.5px solid var(--bd)}
+.head h1{font-size:18px;font-weight:600;letter-spacing:-.02em}
+.nav{width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--ac);font-size:30px;line-height:1;padding:0 0 4px}
+.nav:active{background:var(--w);transform:none;opacity:1}
+
+/* календарь */
+.cal .hd{font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.cal .hd.we{color:var(--r)}
+.c{border-radius:10px}
+.c.sel{transform:none;box-shadow:none;border-color:var(--ac)}
+.c.hc::after{background:var(--r)}
+.msum{border-radius:12px}
+
+/* сегменты как UISegmentedControl */
+.seg{background:var(--w);padding:2px;border-radius:10px;gap:2px}
+.seg button{background:transparent;border:0;border-radius:8px;color:var(--tx);box-shadow:none}
+.seg button.on{background:var(--segon);color:var(--ac);box-shadow:0 1px 3px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.04)}
+#ed .seg{margin:4px 0}
+
+/* кнопки и поля */
+.bkb{background:var(--w);color:var(--ac);border:0;border-radius:12px;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center}
+.cb{background:var(--ac);color:#fff;border:0;border-radius:12px;font-weight:600}
+.cb.done{background:var(--g)}
+.row input,.row select,#ed input.w{background:var(--w);border:0;border-radius:10px}
+.step button{background:var(--w);border:0;border-radius:50%;color:var(--ac)}
+.step button:active{opacity:.6}
+
+/* строки списков */
+.s{border-bottom:.5px solid var(--bd)}
+.earn{border-bottom:.5px solid var(--bd)}
+.tot{border-radius:12px}
+.bks{border-radius:12px;background:var(--w)}
+.bks.g i{background:var(--g)}.bks.w i{background:var(--o)}.bks.r i{background:var(--r)}
+.dots button.bw::after{background:var(--o)}.dots button.br::after{background:var(--r)}
+
+/* нижняя панель вкладок как UITabBar */
+.dots{gap:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));border:0;border-top:.5px solid var(--bd);border-radius:0;box-shadow:none;background:color-mix(in srgb,var(--bg) 72%,transparent);-webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px)}
+.dots button,.dots button.on,.dots button.qb,.dots button.qb.on{flex:1;flex-direction:column;gap:2px;background:transparent;border:0;border-radius:10px;padding:4px 0;color:var(--mut);transition:color .2s,transform .12s}
+.dots button.on{color:var(--ac)}
+.dots svg,.dots button svg{width:26px;height:26px;stroke-width:1.7}
+.dots em,.dots button.on em{max-width:none;opacity:1;overflow:visible;display:block;font-size:10px;font-weight:500;letter-spacing:0}
+.dots button.qb::before{content:"Правка";order:2;font-size:10px;font-weight:500;letter-spacing:0}
+.dots button.bw::after,.dots button.br::after{top:2px;right:calc(50% - 20px);border-color:var(--bg)}
+
+/* ===== iOS: структура блоков ===== */
+.card.grp{padding:0 16px;overflow:hidden}
+.gh{padding:0 16px;margin:20px 0 6px}
+.li{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;box-sizing:border-box;margin:0;border-bottom:.5px solid var(--bd);font-size:16px}
+.grp>.li:last-child,.grp>.lbtn:last-child,.grp>.bks:last-child{border-bottom:0}
+.li .lbl{display:flex;align-items:center;gap:8px;flex:1;min-width:0;padding:8px 0;line-height:1.25}
+.li .lbl .ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--mut)}
+.li input:not([type=checkbox]){width:84px;flex:none;box-sizing:border-box;text-align:right;background:transparent;border:0;border-radius:0;padding:10px 0;color:var(--tx);font-size:16px}
+.li input.wide{flex:1;width:auto;min-width:0}
+.li input::placeholder{color:var(--mut);opacity:.75}
+.li input:disabled{opacity:.45}
+.ft{font-size:13px;line-height:1.35;color:var(--mut);padding:0 16px;margin:6px 0 4px}
+.ft.in{padding:10px 0 12px}
+.lbtn{display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:44px;box-sizing:border-box;padding:0;margin:0;background:transparent;border:0;border-bottom:.5px solid var(--bd);border-radius:0;color:var(--ac);font-size:16px;font-weight:400;text-decoration:none}
+.lbtn:active{opacity:.45;transform:none}
+.card.grp>.lbtn:only-child{justify-content:center}
+.lbtn.bad{color:var(--r)}.lbtn.done{color:var(--g)}
+.grp .bks{background:transparent;border-radius:0;margin:0;padding:0;min-height:44px;box-sizing:border-box;border-bottom:.5px solid var(--bd);font-size:16px}
+.grp .bks i{width:9px;height:9px}
+
+/* переключатель UISwitch */
+.sw{position:relative;display:block;width:51px;height:31px;flex:none}
+.sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;z-index:2}
+.sw i{position:absolute;inset:0;border-radius:99px;background:rgba(120,120,128,.32);transition:background .25s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.16);transition:transform .28s cubic-bezier(.3,1.3,.4,1)}
+.sw input:checked+i{background:var(--g)}
+.sw input:checked+i::after{transform:translateX(20px)}
+
+/* степпер UIStepper */
+.rt{display:flex;align-items:center;gap:12px}
+.rt .val{font-size:17px;font-weight:500;min-width:14px;text-align:right}
+.stp{display:flex;background:var(--w);border-radius:9px;overflow:hidden}
+.stp button{width:46px;height:30px;padding:0;border:0;border-radius:0;background:transparent;color:var(--tx);font-size:22px;line-height:1}
+.stp button+button{border-left:1px solid color-mix(in srgb,var(--mut) 35%,transparent)}
+.stp button:active{background:color-mix(in srgb,var(--mut) 25%,transparent);transform:none;opacity:1}
+
+/* редактор дня */
+#ed{padding:12px 16px 2px}
+.edh{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;flex-wrap:wrap;margin:0 0 10px}
+#ed .edh h2{margin:0;font-size:17px;font-weight:600}
+#ed .edh .info{font-size:12px}
+#ed .seg{margin:0 0 2px}
+#ed .seg button{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 4px}
+#ed .seg button span{font-size:14px;font-weight:600}
+#ed .seg .ic{display:block;margin:0;width:18px;height:18px}
+#ed .grp .li:last-child{border-bottom:0}
+.c{height:clamp(52px,calc((100dvh - 540px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))/6),56px)}
+
+/* итоги и недели */
+#sum .s,#wk .s{padding:11px 0;font-size:16px;border-bottom:.5px solid var(--bd)}
+#sum .s:last-child,#wk .s:last-child{border-bottom:0}
+#sum .s b,#wk .s b{font-weight:400;color:var(--mut)}
+.tot.s{flex-direction:column;align-items:center;justify-content:center;gap:2px;margin:0;padding:4px 0 14px;background:transparent;border-radius:0}
+.tot.s>span:first-child{font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--mut)}
+.tot.s>span:last-child{font-size:36px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+
+/* ===== Liquid Glass: нижняя панель ===== */
+.dots{left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px)*.45 + 8px);width:calc(100% - 28px);max-width:400px;padding:5px;gap:0;border:0;border-radius:999px;
+--g1:rgba(255,255,255,.62);--g2:rgba(255,255,255,.22);--lens:rgba(255,255,255,.8);
+background:linear-gradient(150deg,var(--g1),var(--g2));
+-webkit-backdrop-filter:blur(20px) saturate(210%) brightness(1.04);backdrop-filter:blur(20px) saturate(210%) brightness(1.04);
+box-shadow:0 14px 34px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.4),inset 1px 0 0 rgba(255,255,255,.5),inset -1px 0 0 rgba(255,255,255,.5)}
+.dots::before{content:"";position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/5);border-radius:999px;background:var(--lens);
+box-shadow:0 2px 10px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 1px rgba(0,0,0,.06);
+transform:translateX(calc(var(--i,0)*100%));transition:transform .55s cubic-bezier(.3,1.35,.4,1)}
+.dots::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 52%);opacity:.55}
+.dots button,.dots button.on,.dots button.qb,.dots button.qb.on{color:color-mix(in srgb,var(--tx) 58%,transparent)}
+.dots button.on{color:var(--ac)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .dots{--g1:rgba(120,120,128,.45);--g2:rgba(58,58,62,.2);--lens:rgba(255,255,255,.17);box-shadow:0 14px 34px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(255,255,255,.06),inset 1px 0 0 rgba(255,255,255,.1),inset -1px 0 0 rgba(255,255,255,.1)}
+:root:not([data-theme="light"]) .dots::before{box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 1px rgba(255,255,255,.05)}
+:root:not([data-theme="light"]) .dots::after{opacity:.22}}
+:root[data-theme="dark"] .dots{--g1:rgba(120,120,128,.45);--g2:rgba(58,58,62,.2);--lens:rgba(255,255,255,.17);box-shadow:0 14px 34px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -1px 0 rgba(255,255,255,.06),inset 1px 0 0 rgba(255,255,255,.1),inset -1px 0 0 rgba(255,255,255,.1)}
+:root[data-theme="dark"] .dots::before{box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 1px rgba(255,255,255,.05)}
+:root[data-theme="dark"] .dots::after{opacity:.22}
+#pg>#pgs.act{max-height:calc(100dvh - 72px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding-bottom:120px;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch}
 </style></head>
 <body><main>
 <div class="card head"><button class="nav" data-a="pm">‹</button><h1 id="t" data-a="today" style="cursor:pointer"></h1><button class="nav" data-a="nm">›</button></div>
@@ -169,10 +309,11 @@ main{height:100dvh;overflow-y:auto}
 <div id="pg">
 <div class="card" id="ed"></div>
 <div class="card"><div class="seg" id="stb" style="margin:0 0 8px"></div><div id="sum"></div></div>
-<div class="card"><h2>Настройки месяца</h2><div id="set"></div><h2 style="margin-top:16px">Облачная синхронизация</h2><div id="sy"></div><h2 style="margin-top:16px">Резервная копия</h2><div id="bk"></div></div>
+<div id="pgs"><div id="set"></div><div class="gh">Облачная синхронизация</div><div class="card grp" id="sy"></div><div class="gh">Резервная копия</div><div class="card grp" id="bk"></div></div>
 <div class="card"><h2>Часы по неделям (Пн–Вс)</h2><div id="wk"></div></div>
 </div>
 </main>
+<div id="rot">Поверните телефон вертикально</div>
 <script>
 const MI=(y,m)=>y*12+m-1,MA=i=>[Math.floor(i/12),i%12+1];
 const RU=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
@@ -219,10 +360,11 @@ return h}finally{cur=sc}}
 function renderCal(){$("#cc").innerHTML=calHTML(cur)}
 function info(){const m=M(),h=hrs(m,sel),e=$("#inf");let H=0;for(let d=1;d<=ND();d++)H+=hrs(m,d);if(e)e.innerHTML=`<span>Смена: ${money(h*rate(m))} · ${ci(CAR)} ${money(rideOf(m,sel))}</span>`}
 function renderEd(){const m=M(),o=m.d[sel]||{},auto=o.s==="D"?mod(m.set.de-m.set.ds):o.s==="N"?mod(m.set.ne-m.set.ns):0;
-$("#ed").innerHTML=`<h2>${WD[wdOf(sel)]}, ${sel} ${RU[MO()-1].toLowerCase().replace(/ь$/,"я").replace(/т$/,"та").replace(/й$/,"я")}</h2>
-<div class="row two"><div class="seg"><button data-a="sh" data-v="D" aria-label="День" class="${o.s==="D"?"on":""}">${ci(SUN)}</button><button data-a="sh" data-v="N" aria-label="Ночь" class="${o.s==="N"?"on":""}">${ci(MOON)}</button></div><div class="step">${ci(CAR)}<button data-a="rd" data-v="-1">−</button><span>${o.r||0}</span><button data-a="rd" data-v="1">+</button></div></div>
-<div class="row two"><input class="w" data-f="c" placeholder="Комментарий" value="${esc(o.c||"")}"><div class="step">${ci(CLK)}<input data-f="h" inputmode="decimal"${o.s?"":" disabled"} placeholder="${auto?hh(auto):"авто"}" value="${esc(o.h||"")}"></div></div>
-<div class="info" id="inf" style="display:flex;justify-content:space-between;align-items:center;gap:8px"></div>`;info()}
+$("#ed").innerHTML=`<div class="edh"><h2>${WD[wdOf(sel)]}, ${sel} ${RU[MO()-1].toLowerCase().replace(/ь$/,"я").replace(/т$/,"та").replace(/й$/,"я")}</h2><div class="info" id="inf"></div></div>
+<div class="seg"><button data-a="sh" data-v="D" aria-label="День" class="${o.s==="D"?"on":""}">${ci(SUN)}<span>День</span></button><button data-a="sh" data-v="N" aria-label="Ночь" class="${o.s==="N"?"on":""}">${ci(MOON)}<span>Ночь</span></button></div>
+<div class="grp"><div class="li"><span class="lbl">${ci(CAR)}Довоз</span><span class="rt"><b class="val">${o.r||0}</b><span class="stp"><button data-a="rd" data-v="-1" aria-label="Меньше">−</button><button data-a="rd" data-v="1" aria-label="Больше">+</button></span></span></div>
+<label class="li"><span class="lbl">${ci(CLK)}Часы</span><input data-f="h" inputmode="decimal"${o.s?"":" disabled"} placeholder="${auto?hh(auto):"авто"}" value="${esc(o.h||"")}"></label>
+<label class="li"><span class="lbl">Заметка</span><input class="wide" data-f="c" placeholder="Комментарий" value="${esc(o.c||"")}"></label></div>`;info()}
 function renderSum(){const m=M(),nd=ND(),r=rate(m);let H=0,D=0,N=0,rd=0,rn=0,rp=0,rnW=0,rnE=0;
 for(let d=1;d<=nd;d++){const o=m.d[d]||{};H+=hrs(m,d);if(o.s==="D")D++;if(o.s==="N")N++;if(o.r){rd++;rn+=o.r;rp+=rideOf(m,d);if(wdOf(d)>=5)rnE+=o.r;else rnW+=o.r}}
 const wage=H*r,tot=wage+rp+m.set.prem-m.set.rent,row=(a,b)=>`<div class="s"><span>${a}</span><b>${b}</b></div>`;
@@ -238,16 +380,25 @@ if(!n)return `<div class="info">Пока нет данных о сменах</di
 const tot=wage+rp+prem-rent,n2=x=>x.toFixed(2).replace(".",","),t=v=>(v<0?" − ":" + ")+n2(Math.abs(v));
 let a=n2(wage),w="оплата за часы";if(prem){a+=t(prem);w+=" + премия"}if(rp){a+=t(rp);w+=" + довоз"}if(rent){a+=t(-rent);w+=" − жильё"}
 return `<div class="tot s"><span>ВСЕГО ЗАРАБОТАНО</span><span>${money(tot)}</span></div>`+row("Месяцев с данными",n)+row("Среднее за месяц",money(tot/n))+row("Количество часов",hh(H))+row("Поездки (будни / выходные)",rnW+" / "+rnE)+row("Оплата за часы",money(wage))+row("Оплата за довоз",money(rp))+row("Смен D / N",D+" / "+N)+row("Премии",money(prem))+row("Потрачено на жильё",money(rent))+`<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--bd);font-size:13px"><div>${a} = ${n2(tot)}</div><div style="margin-top:6px;color:var(--mut)">${w}</div></div>`}
-function bkRender(msg,pending){$("#bk").innerHTML=bkPill()+`<div class="row"><button class="bkb" data-a="bksave">Сохранить копию</button><label class="bkb">Восстановить<input type="file" id="bkf" accept=".json,application/json" hidden></label></div>${msg?`<div class="info" style="margin:6px 0">${msg}</div>`:""}${pending?`<div class="row"><button class="bkb" data-a="bkok">Заменить данные</button><button class="bkb" data-a="bkno">Отмена</button></div>`:""}`}
+function bkRender(msg,pending){$("#bk").innerHTML=bkPill()+`<button class="lbtn" data-a="bksave">Сохранить копию</button><label class="lbtn">Восстановить из файла<input type="file" id="bkf" accept=".json,application/json" hidden></label>${pending?`<button class="lbtn bad" data-a="bkok">Заменить данные</button><button class="lbtn" data-a="bkno">Отмена</button>`:""}${msg?`<div class="ft in">${msg}</div>`:""}`}
 async function bkSave(){const data=JSON.stringify(S),d=new Date(),fn="grafik-smen-"+d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+".json";let dl=null;try{dl=window.claude?await claude.use("downloads"):null}catch(e){}
 if(dl){try{await dl.save({filename:fn,data});lbSet(Date.now());bkRender("Копия сохранена");envFx(false);return}catch(e){if(e&&e.code==="declined"){bkRender("Сохранение отменено");return}}}
 try{const b=new Blob([data],{type:"application/json"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);lbSet(Date.now());bkRender("Копия сохранена");envFx(false);return}catch(e){}
 try{await navigator.clipboard.writeText(data);bkRender("Не удалось сохранить файл, поэтому копия скопирована в буфер обмена. Вставьте её в заметки или сообщение себе.")}catch(e){bkRender("Не удалось сохранить файл. Скопируйте текст копии вручную:<textarea readonly style=\"width:100%;height:90px;margin-top:6px\">"+esc(data)+"</textarea>")}}
 function bkRead(file){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!j||typeof j.m!=="object"||j.m===null||!Object.values(j.m).every(x=>x&&x.set&&x.d))throw 0;bkPend=j;bkRender("Файл прочитан, месяцев: "+Object.keys(j.m).length+". Текущие данные на устройстве и в аккаунте будут заменены.",true)}catch(e){bkPend=null;bkRender("Не удалось прочитать файл: это не копия графика смен.")}};r.onerror=()=>bkRender("Не удалось прочитать файл.");r.readAsText(file)}
 function bkApply(){if(!bkPend)return;const r0=(document.querySelector('[data-a="bkok"]')||document.body).getBoundingClientRect();S=bkPend;bkPend=null;mig(S);S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}push();all();lbSet(S.ts);bkRender("Данные восстановлены");envFx(true,r0)}
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset&&t.dataset.sw){const m=M();m.set[t.dataset.sw]=t.checked?"да":"нет";save();renderSum();info();return}});
 document.addEventListener("change",e=>{if(e.target.id==="bkf"){const f=e.target.files&&e.target.files[0];if(f)bkRead(f);e.target.value=""}});
-function renderSet(){renderSet0();hdrs()}
-function renderSet0(){const m=M();$("#set").innerHTML=FLD.map(([k,l,t])=>t?`<div class="row"><label>${zl(l)}</label><select data-k="${k}"><option${m.set[k]==="да"?" selected":""}>да</option><option${m.set[k]==="нет"?" selected":""}>нет</option></select></div>`:`<div class="row"><label>${zl(l)}</label><input data-k="${k}" inputmode="decimal" value="${String(m.set[k]).replace(".",",")}"></div>`).join("")+`<div class="row"><button class="bkb cb${cmsg&&cmsg.i===cur?" done":""}" data-a="carry">${cmsg&&cmsg.i===cur?"✓ ":""}Применить к следующим</button></div><div class="info">Все настройки этого месяца, кроме премии, перенесутся на все следующие месяцы.</div>${cmsg&&cmsg.i===cur?`<div class="info" style="margin-top:6px">${cmsg.n?"Применено, обновлено месяцев: "+cmsg.n+". ":"Применено. "}Новые месяцы тоже получат эти настройки.</div>`:""}`}
+function renderSet(){renderSet0()}
+function renderSet0(){const m=M();let h="",open=false;
+for(const[k,l,t]of FLD){
+if(GH[k]){if(open)h+="</div>";h+=`<div class="gh">${GH[k]}</div><div class="card grp">`;open=true}
+h+=t?`<label class="li"><span class="lbl"><span>${zl(l)}</span></span><span class="sw"><input type="checkbox" data-sw="${k}"${m.set[k]==="да"?" checked":""}><i></i></span></label>`
+:`<label class="li"><span class="lbl"><span>${zl(l)}</span></span><input data-k="${k}" inputmode="decimal" value="${String(m.set[k]).replace(".",",")}"></label>`}
+if(open)h+="</div>";
+const dn=cmsg&&cmsg.i===cur;
+h+=`<div class="card grp" style="margin-top:18px"><button class="lbtn${dn?" done":""}" data-a="carry">${dn?"✓ ":""}Применить к следующим</button></div><div class="ft">Все настройки этого месяца, кроме премии, перенесутся на все следующие месяцы.${dn?" "+(cmsg.n?"Применено, обновлено месяцев: "+cmsg.n+". ":"Применено. ")+"Новые месяцы тоже получат эти настройки.":""}</div>`;
+$("#set").innerHTML=h}
 const RM=matchMedia("(prefers-reduced-motion:reduce)").matches,GH={ds:"Смены",stu:"Ставки",rw:"Довоз",rent:"Вычеты и премия"};
 const isFut=(y,m,d)=>{const n=new Date();return new Date(y,m-1,d)>new Date(n.getFullYear(),n.getMonth(),n.getDate())};
 function hdrs(){for(const k in GH){const e=$("#set [data-k="+k+"]");if(e)e.closest(".row").insertAdjacentHTML("beforebegin",`<div class="gh">${GH[k]}</div>`)}}
@@ -305,9 +456,9 @@ let lastK="",cmsg=null,pg=0,qm=false,qv="D",sumTab=0,bkPend=null;const PT=["Де
 const IC=[`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><rect x="8" y="13" width="4" height="4" rx="1" fill="currentColor"/>`,`<path d="M5 20V10M12 20V4M19 20v-7"/>`,`<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>`,`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h10M7 17.5h10"/>`],QI=`<path d="M4 20l1-4L16 5a2 2 0 013 3L8 19l-4 1z"/><path d="M14 7l3 3"/>`;
 const svg=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 function setPg(i){qm=false;$("#qk").classList.remove("act");$("#pg").classList.remove("hide");pg=Math.max(0,Math.min(3,i));[...$("#pg").children].forEach((e,k)=>e.classList.toggle("act",k===pg));updCal();renderDots();if(pg===1){lastK="";renderSum()}}
-function renderDots(){const d=$("#dots");if(!d.children.length)d.innerHTML=rd0();[...d.children].forEach((b,k)=>b.classList.toggle("on",k<4?(!qm&&k===pg):qm));bkUpd()}
+function renderDots(){const d=$("#dots");if(!d.children.length)d.innerHTML=rd0();[...d.children].forEach((b,k)=>b.classList.toggle("on",k<4?(!qm&&k===pg):qm));d.style.setProperty("--i",qm?4:pg);bkUpd()}
 function rd0(){return PT.map((t,k)=>`<button data-a="pg" data-v="${k}" class="${!qm&&k===pg?"on":""}" title="${t}" aria-label="${t}">${svg(IC[k])}<em>${t}</em></button>`).join("")+`<button class="qb${qm?" on":""}" data-a="qm" title="Быстрое редактирование" aria-label="Быстрое редактирование">${svg(QI)}</button>`}
-function renderQk(){$("#qk").innerHTML=`<div class="seg" style="margin:0">${[["D",SUN,"День"],["N",MOON,"Ночь"],["",HOME,"Выходной"],["R",CAR,"Довоз"]].map(([v,p,l])=>`<button data-a="qv" data-v="${v}" title="${l}" aria-label="${l}" class="${qv===v?"on":""}">${ci(p)}</button>`).join("")}</div>`}
+function renderQk(){$("#qk").innerHTML=`<div class="seg" style="margin:0">${[["D",SUN,"День"],["N",MOON,"Ночь"],["",HOME,"Выходной"],["R",CAR,"Довоз"]].map(([v,p,l])=>`<button data-a="qv" data-v="${v}" title="${l}" aria-label="${l}" class="${qv===v?"on":""}">${ci(p)}<span class="lb">${l}</span></button>`).join("")}</div>`}
 function toggleQm(){qm=!qm;$("#qk").classList.toggle("act",qm);$("#pg").classList.toggle("hide",qm);if(qm)renderQk();updCal();renderDots()}
 function updCal(){$("#calc").classList.toggle("hide",pg!==0&&!qm)}
 (function(){const vp=$("#vp"),cc=$("#cc"),st=$("#st");$("#hd").innerHTML=WD.map((w,i)=>`<div class="hd${i>4?" we":""}">${w}</div>`).join("");
@@ -336,6 +487,15 @@ setTimeout(()=>{if(go){cur+=dir;sel=1;all()}closeS();busy=false},280)}
 vp.addEventListener("touchend",()=>endS(false));vp.addEventListener("touchcancel",()=>endS(true));
 })();
 ["gesturestart","gesturechange","gestureend"].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
+/* свайп влево/вправо — переключение вкладок */
+(function(){let sx=0,sy=0,st=0,ok=false;
+const bad=t=>{for(let n=t;n&&n!==document.body;n=n.parentElement){if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||n.isContentEditable)return true;if(n.scrollWidth>n.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(n).overflowX))return true}return false};
+document.addEventListener("touchstart",e=>{ok=false;if(e.touches.length!==1||qm||typeof fx!=="undefined"&&fx)return;const t=e.touches[0];if(t.clientX<24||t.clientX>innerWidth-24||bad(e.target))return;sx=t.clientX;sy=t.clientY;st=Date.now();ok=true},{passive:true});
+document.addEventListener("touchend",e=>{if(!ok)return;ok=false;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-st>700)return;
+const dir=dx<0?1:-1,n=pg+dir;if(n<0||n>3)return;setPg(n);
+try{$("#pg").animate([{transform:"translateX("+dir*28+"px)",opacity:0},{transform:"none",opacity:1}],{duration:200,easing:"ease-out"})}catch(_){}},{passive:true});
+})();
 
 /* ===== Облачная синхронизация через секретный GitHub Gist ===== */
 const SK="shiftplanner.sync",SF="grafik-smen.json";
@@ -346,9 +506,9 @@ async function gh(method,path,body){const r=await fetch("https://api.github.com"
 if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;throw e}return r.json()}
 function syErr(e){return e&&e.status===401?["r","Токен недействителен — подключите заново"]:e&&e.status===403?["r","Доступ ограничен GitHub, попробуйте позже"]:e&&e.status===404?["r","Gist не найден или у токена нет права gist"]:["w","Нет связи, синхронизируется позже"]}
 function syRender(){const el=$("#sy");if(!el)return;
-if(!syOn()){el.innerHTML=`<div class="info" style="margin-bottom:8px">Данные хранятся в вашем секретном Gist на GitHub и подхватываются на всех устройствах. Токен хранится только на этом устройстве.</div>${syMsg?`<div class="bks ${syMsg[0]}"><i></i><span>${syMsg[1]}</span></div>`:""}<div class="row"><input class="w" id="syt" type="password" placeholder="Токен GitHub (ghp_…)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div><div class="row"><button class="bkb" data-s="conn">Подключить</button><a class="bkb" style="text-decoration:none;color:var(--tx)" href="https://github.com/settings/tokens/new?scopes=gist&description=grafik-smen" target="_blank" rel="noopener">Создать токен</a></div>`;return}
+if(!syOn()){el.innerHTML=(syMsg?`<div class="bks ${syMsg[0]}"><i></i><span>${syMsg[1]}</span></div>`:"")+`<label class="li"><span class="lbl">Токен</span><input class="wide" id="syt" type="password" placeholder="ghp_…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label><button class="lbtn" data-s="conn">Подключить</button><a class="lbtn" href="https://github.com/settings/tokens/new?scopes=gist&description=grafik-smen" target="_blank" rel="noopener">Создать токен на GitHub</a><div class="ft in">Данные хранятся в вашем секретном Gist на GitHub и подхватываются на всех устройствах. Токен хранится только на этом устройстве.</div>`;return}
 const m=syMsg||(SY.last?["g","Синхронизировано: "+new Date(SY.last).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})]:["w","Ожидает синхронизации"]);
-el.innerHTML=`<div class="bks ${m[0]}"><i></i><span>${m[1]}</span></div><div class="row"><button class="bkb" data-s="now">Синхронизировать</button><button class="bkb" data-s="off">Отключить</button></div>`}
+el.innerHTML=`<div class="bks ${m[0]}"><i></i><span>${m[1]}</span></div><button class="lbtn" data-s="now">Синхронизировать</button><button class="lbtn bad" data-s="off">Отключить</button>`}
 async function syncNow(){if(!syOn())return;if(syBusy){syAgain=true;return}syBusy=true;
 try{const g=await gh("GET","/gists/"+SY.g),f=g.files&&g.files[SF];let j=null;
 if(f){const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{j=JSON.parse(txt)}catch(e){}}
@@ -372,6 +532,7 @@ if(a==="off"){SY={};sySave();syMsg=null;syRender()}});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)syncNow()});
 window.addEventListener("online",()=>syncNow());
 syRender();
+try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock("portrait").catch(()=>{})}catch(e){}
 bkRender();
 setPg(0);
 all();
