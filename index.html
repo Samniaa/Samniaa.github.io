@@ -505,10 +505,19 @@ function sySave(){try{localStorage.setItem(SK,JSON.stringify(SY))}catch(e){}}
 async function gh(method,path,body){const r=await fetch("https://api.github.com"+path,{method,cache:"no-store",headers:{"Authorization":"Bearer "+SY.t,"Accept":"application/vnd.github+json",...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
 if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;throw e}return r.json()}
 function syErr(e){return e&&e.status===401?["r","Токен недействителен — подключите заново"]:e&&e.status===403?["r","Доступ ограничен GitHub, попробуйте позже"]:e&&e.status===404?["r","Gist не найден или у токена нет права gist"]:["w","Нет связи, синхронизируется позже"]}
+let syConf=false;
+async function syFetch(){const g=await gh("GET","/gists/"+SY.g),f=g.files&&g.files[SF];if(!f)return null;const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{return JSON.parse(txt)}catch(e){return null}}
+async function syForce(){if(!syOn()||syBusy)return;syBusy=true;syConf=false;syMsg=["w","Загружаю из облака…"];syRender();
+let j=null;
+try{j=await syFetch()}catch(e){syMsg=syErr(e);syBusy=false;syRender();return}
+if(!j||!j.m||typeof j.m!=="object"){syMsg=["r","В облаке нет данных"];syBusy=false;syRender();return}
+S=j;if(mig(S))S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}
+SY.last=Date.now();sySave();syMsg=["g","Данные загружены из облака"];syBusy=false;syRender();
+try{all();bkUpd()}catch(e){}}
 function syRender(){const el=$("#sy");if(!el)return;
 if(!syOn()){el.innerHTML=(syMsg?`<div class="bks ${syMsg[0]}"><i></i><span>${syMsg[1]}</span></div>`:"")+`<label class="li"><span class="lbl">Токен</span><input class="wide" id="syt" type="password" placeholder="ghp_…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label><button class="lbtn" data-s="conn">Подключить</button><a class="lbtn" href="https://github.com/settings/tokens/new?scopes=gist&description=grafik-smen" target="_blank" rel="noopener">Создать токен на GitHub</a><div class="ft in">Данные хранятся в вашем секретном Gist на GitHub и подхватываются на всех устройствах. Токен хранится только на этом устройстве.</div>`;return}
 const m=syMsg||(SY.last?["g","Синхронизировано: "+new Date(SY.last).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})]:["w","Ожидает синхронизации"]);
-el.innerHTML=`<div class="bks ${m[0]}"><i></i><span>${m[1]}</span></div><button class="lbtn" data-s="now">Синхронизировать</button><button class="lbtn bad" data-s="off">Отключить</button>`}
+el.innerHTML=`<div class="bks ${m[0]}"><i></i><span>${m[1]}</span></div>`+(syConf?`<div class="ft in">Данные на этом устройстве будут заменены данными из облака. Несохранённые изменения пропадут.</div><button class="lbtn bad" data-s="pullok">Заменить данные</button><button class="lbtn" data-s="pullno">Отмена</button>`:`<button class="lbtn" data-s="now">Синхронизировать</button><button class="lbtn" data-s="pull">Загрузить из облака</button><button class="lbtn bad" data-s="off">Отключить</button>`)}
 async function syncNow(){if(!syOn())return;if(syBusy){syAgain=true;return}syBusy=true;
 try{const g=await gh("GET","/gists/"+SY.g),f=g.files&&g.files[SF];let j=null;
 if(f){const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{j=JSON.parse(txt)}catch(e){}}
@@ -528,7 +537,10 @@ catch(e){SY={};syMsg=e&&e.status===401?["r","Токен не подошёл"]:e&
 document.addEventListener("click",e=>{const t=e.target.closest("[data-s]");if(!t)return;const a=t.dataset.s;
 if(a==="conn"){const i=$("#syt");syConnect(i&&i.value);return}
 if(a==="now"){syMsg=["w","Синхронизирую…"];syRender();syncNow();return}
-if(a==="off"){SY={};sySave();syMsg=null;syRender()}});
+if(a==="pull"){syConf=true;syRender();return}
+if(a==="pullno"){syConf=false;syRender();return}
+if(a==="pullok"){syForce();return}
+if(a==="off"){SY={};sySave();syMsg=null;syConf=false;syRender()}});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)syncNow()});
 window.addEventListener("online",()=>syncNow());
 syRender();
