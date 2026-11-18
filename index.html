@@ -332,7 +332,7 @@ const LK="shiftplanner.v1";
 let S={ts:0,m:{}},cur=2,sel=1,ref=null,tm=null;
 function mig(s){let ch=false;if(!s.v3){for(const k in s.m){const dd=(s.m[k]&&s.m[k].d)||{};for(const d in dd){const o=dd[d];if(o&&!o.s&&o.h)o.h=""}}s.v3=1;ch=true}if(!s.v4){for(const k in s.m){const dd=(s.m[k]&&s.m[k].d)||{};for(const d in dd){const o=dd[d];if(o&&o.r>3)o.r=3}}s.v4=1;ch=true}if(s.v2)return ch;for(const k in s.m){const p=k.split("-").map(Number),st=s.m[k]&&s.m[k].set;if(st&&p[0]*100+p[1]>=202611){st.rw=30;st.re=40;ch=true}}s.v2=1;return ch}
 try{const j=JSON.parse(localStorage.getItem(LK));if(j&&j.m)S=j}catch(e){}
-if(mig(S)){S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}}
+if(mig(S)&&hasData(S)){S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}}
 const now=new Date();const ix=MI(now.getFullYear(),now.getMonth()+1);
 if(ix>=0){cur=ix;sel=now.getDate()}
 const Y=()=>MA(cur)[0],MO=()=>MA(cur)[1],ND=()=>new Date(Y(),MO(),0).getDate();
@@ -506,7 +506,8 @@ async function gh(method,path,body){const r=await fetch("https://api.github.com"
 if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;throw e}return r.json()}
 function syErr(e){return e&&e.status===401?["r","Токен недействителен — подключите заново"]:e&&e.status===403?["r","Доступ ограничен GitHub, попробуйте позже"]:e&&e.status===404?["r","Gist не найден или у токена нет права gist"]:["w","Нет связи, синхронизируется позже"]}
 let syConf=false;
-async function syFetch(){const g=await gh("GET","/gists/"+SY.g),f=g.files&&g.files[SF];if(!f)return null;const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{return JSON.parse(txt)}catch(e){return null}}
+function hasData(x){if(!x||!x.m)return false;for(const k in x.m){const d=(x.m[k]&&x.m[k].d)||{};for(const n in d){const o=d[n];if(o&&(o.s||o.r||o.c||o.h))return true}}return false}
+async function syFetch(id){const g=await gh("GET","/gists/"+(id||SY.g)),f=g.files&&g.files[SF];if(!f)return null;const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{return JSON.parse(txt)}catch(e){return null}}
 async function syForce(){if(!syOn()||syBusy)return;syBusy=true;syConf=false;syMsg=["w","Загружаю из облака…"];syRender();
 let j=null;
 try{j=await syFetch()}catch(e){syMsg=syErr(e);syBusy=false;syRender();return}
@@ -519,18 +520,24 @@ if(!syOn()){el.innerHTML=(syMsg?`<div class="bks ${syMsg[0]}"><i></i><span>${syM
 const m=syMsg||(SY.last?["g","Синхронизировано: "+new Date(SY.last).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})]:["w","Ожидает синхронизации"]);
 el.innerHTML=`<div class="bks ${m[0]}"><i></i><span>${m[1]}</span></div>`+(syConf?`<div class="ft in">Данные на этом устройстве будут заменены данными из облака. Несохранённые изменения пропадут.</div><button class="lbtn bad" data-s="pullok">Заменить данные</button><button class="lbtn" data-s="pullno">Отмена</button>`:`<button class="lbtn" data-s="now">Синхронизировать</button><button class="lbtn" data-s="pull">Загрузить из облака</button><button class="lbtn bad" data-s="off">Отключить</button>`)}
 async function syncNow(){if(!syOn())return;if(syBusy){syAgain=true;return}syBusy=true;
-try{const g=await gh("GET","/gists/"+SY.g),f=g.files&&g.files[SF];let j=null;
-if(f){const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{j=JSON.parse(txt)}catch(e){}}
-const rts=(j&&j.m&&j.ts)||0;
-if(rts>S.ts){S=j;if(mig(S))S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}all();bkUpd()}
-if(S.ts>rts)await gh("PATCH","/gists/"+SY.g,{files:{[SF]:{content:JSON.stringify(S)}}});
+try{const j=await syFetch(),ok=!!(j&&j.m&&typeof j.m==="object"),rts=ok?(+j.ts||0):0,rd=ok&&hasData(j),ld=hasData(S);
+let act=0;
+if(rd&&!ld)act=1;
+else if(ld&&!rd)act=2;
+else if(rd&&ld){if(rts>S.ts)act=1;else if(S.ts>rts)act=2}
+else if(S.ts>0&&S.ts>rts)act=2;
+let ch=false;
+if(act===1){S=j;ch=mig(S);if(ch)S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}try{all();bkUpd()}catch(e){}}
+if(act===2||ch)await gh("PATCH","/gists/"+SY.g,{files:{[SF]:{content:JSON.stringify(S)}}});
 SY.last=Date.now();sySave();syMsg=null}
 catch(e){syMsg=syErr(e)}
 finally{syBusy=false;syRender();if(syAgain){syAgain=false;syncNow()}}}
 async function syConnect(tok){tok=(tok||"").trim();if(!tok){syMsg=["w","Вставьте токен"];syRender();return}
 syMsg=["w","Подключаюсь…"];SY={t:tok};syRender();
-try{let gid=null;
-for(let pgn=1;pgn<=3&&!gid;pgn++){const l=await gh("GET","/gists?per_page=100&page="+pgn);if(!l.length)break;const h=l.find(x=>x.files&&x.files[SF]);if(h)gid=h.id}
+try{const cands=[];
+for(let pgn=1;pgn<=3;pgn++){const l=await gh("GET","/gists?per_page=100&page="+pgn);if(!l.length)break;for(const x of l)if(x.files&&x.files[SF])cands.push(x.id)}
+let gid=null,best=-1;
+for(const id of cands.slice(0,6)){try{const j=await syFetch(id),sc=hasData(j)?(+j.ts||1):0;if(gid===null||sc>best){gid=id;best=sc}}catch(e){if(e&&e.status===401)throw e;if(gid===null)gid=id}}
 if(!gid){const c=await gh("POST","/gists",{description:"График смен — синхронизация",public:false,files:{[SF]:{content:JSON.stringify(S)}}});gid=c.id}
 SY={t:tok,g:gid};sySave();syMsg=null;syRender();await syncNow()}
 catch(e){SY={};syMsg=e&&e.status===401?["r","Токен не подошёл"]:e&&e.status===403||e&&e.status===404?["r","У токена нет права gist"]:["w","Не удалось подключиться, проверьте сеть"];syRender()}}
