@@ -169,7 +169,7 @@ main{height:100dvh;overflow-y:auto}
 <div id="pg">
 <div class="card" id="ed"></div>
 <div class="card"><div class="seg" id="stb" style="margin:0 0 8px"></div><div id="sum"></div></div>
-<div class="card"><h2>Настройки месяца</h2><div id="set"></div><h2 style="margin-top:16px">Резервная копия</h2><div id="bk"></div></div>
+<div class="card"><h2>Настройки месяца</h2><div id="set"></div><h2 style="margin-top:16px">Облачная синхронизация</h2><div id="sy"></div><h2 style="margin-top:16px">Резервная копия</h2><div id="bk"></div></div>
 <div class="card"><h2>Часы по неделям (Пн–Вс)</h2><div id="wk"></div></div>
 </div>
 </main>
@@ -201,7 +201,7 @@ function hrs(m,d){const o=m.d[d]||{};if(!o.s)return 0;if(o.h!==undefined&&o.h!==
 const rate=m=>(m.set.stu==="да"?m.set.rs:m.set.rn)+(m.set.abs==="да"?0:m.set.bn);
 const rideOf=(m,d)=>{const r=(m.d[d]||{}).r||0;return r*(wdOf(d)>=5?m.set.re:m.set.rw)};
 function save(){S.ts=Date.now();bkUpd();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}clearTimeout(tm);tm=setTimeout(push,800)}
-async function push(){if(ref){try{await ref.set({json:JSON.stringify(S)})}catch(e){}}}
+async function push(){if(syOn()){syncNow();return}if(ref){try{await ref.set({json:JSON.stringify(S)})}catch(e){}}}
 const isCurMonth=()=>{const n=new Date();return n.getFullYear()===Y()&&n.getMonth()+1===MO()};
 function renderHead(){const t=$("#t");t.textContent=RU[MO()-1]+" "+Y();t.className="";void t.offsetWidth;t.className=(isCurMonth()?"cm ":"")+"sl"}
 const manH=o=>!!o.s&&o.h!==undefined&&o.h!==""&&!isNaN(f(o.h));
@@ -336,9 +336,46 @@ setTimeout(()=>{if(go){cur+=dir;sel=1;all()}closeS();busy=false},280)}
 vp.addEventListener("touchend",()=>endS(false));vp.addEventListener("touchcancel",()=>endS(true));
 })();
 ["gesturestart","gesturechange","gestureend"].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
+
+/* ===== Облачная синхронизация через секретный GitHub Gist ===== */
+const SK="shiftplanner.sync",SF="grafik-smen.json";
+let SY=(()=>{try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}})(),syBusy=false,syAgain=false,syMsg=null;
+const syOn=()=>!!(SY.t&&SY.g);
+function sySave(){try{localStorage.setItem(SK,JSON.stringify(SY))}catch(e){}}
+async function gh(method,path,body){const r=await fetch("https://api.github.com"+path,{method,cache:"no-store",headers:{"Authorization":"Bearer "+SY.t,"Accept":"application/vnd.github+json",...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;throw e}return r.json()}
+function syErr(e){return e&&e.status===401?["r","Токен недействителен — подключите заново"]:e&&e.status===403?["r","Доступ ограничен GitHub, попробуйте позже"]:e&&e.status===404?["r","Gist не найден или у токена нет права gist"]:["w","Нет связи, синхронизируется позже"]}
+function syRender(){const el=$("#sy");if(!el)return;
+if(!syOn()){el.innerHTML=`<div class="info" style="margin-bottom:8px">Данные хранятся в вашем секретном Gist на GitHub и подхватываются на всех устройствах. Токен хранится только на этом устройстве.</div>${syMsg?`<div class="bks ${syMsg[0]}"><i></i><span>${syMsg[1]}</span></div>`:""}<div class="row"><input class="w" id="syt" type="password" placeholder="Токен GitHub (ghp_…)" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div><div class="row"><button class="bkb" data-s="conn">Подключить</button><a class="bkb" style="text-decoration:none;color:var(--tx)" href="https://github.com/settings/tokens/new?scopes=gist&description=grafik-smen" target="_blank" rel="noopener">Создать токен</a></div>`;return}
+const m=syMsg||(SY.last?["g","Синхронизировано: "+new Date(SY.last).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})]:["w","Ожидает синхронизации"]);
+el.innerHTML=`<div class="bks ${m[0]}"><i></i><span>${m[1]}</span></div><div class="row"><button class="bkb" data-s="now">Синхронизировать</button><button class="bkb" data-s="off">Отключить</button></div>`}
+async function syncNow(){if(!syOn())return;if(syBusy){syAgain=true;return}syBusy=true;
+try{const g=await gh("GET","/gists/"+SY.g),f=g.files&&g.files[SF];let j=null;
+if(f){const txt=f.truncated?await(await fetch(f.raw_url,{cache:"no-store"})).text():f.content;try{j=JSON.parse(txt)}catch(e){}}
+const rts=(j&&j.m&&j.ts)||0;
+if(rts>S.ts){S=j;if(mig(S))S.ts=Date.now();try{localStorage.setItem(LK,JSON.stringify(S))}catch(e){}all();bkUpd()}
+if(S.ts>rts)await gh("PATCH","/gists/"+SY.g,{files:{[SF]:{content:JSON.stringify(S)}}});
+SY.last=Date.now();sySave();syMsg=null}
+catch(e){syMsg=syErr(e)}
+finally{syBusy=false;syRender();if(syAgain){syAgain=false;syncNow()}}}
+async function syConnect(tok){tok=(tok||"").trim();if(!tok){syMsg=["w","Вставьте токен"];syRender();return}
+syMsg=["w","Подключаюсь…"];SY={t:tok};syRender();
+try{let gid=null;
+for(let pgn=1;pgn<=3&&!gid;pgn++){const l=await gh("GET","/gists?per_page=100&page="+pgn);if(!l.length)break;const h=l.find(x=>x.files&&x.files[SF]);if(h)gid=h.id}
+if(!gid){const c=await gh("POST","/gists",{description:"График смен — синхронизация",public:false,files:{[SF]:{content:JSON.stringify(S)}}});gid=c.id}
+SY={t:tok,g:gid};sySave();syMsg=null;syRender();await syncNow()}
+catch(e){SY={};syMsg=e&&e.status===401?["r","Токен не подошёл"]:e&&e.status===403||e&&e.status===404?["r","У токена нет права gist"]:["w","Не удалось подключиться, проверьте сеть"];syRender()}}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-s]");if(!t)return;const a=t.dataset.s;
+if(a==="conn"){const i=$("#syt");syConnect(i&&i.value);return}
+if(a==="now"){syMsg=["w","Синхронизирую…"];syRender();syncNow();return}
+if(a==="off"){SY={};sySave();syMsg=null;syRender()}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)syncNow()});
+window.addEventListener("online",()=>syncNow());
+syRender();
 bkRender();
 setPg(0);
 all();
+syncNow();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 (async()=>{try{if(!window.claude)return;const[db,us]=await Promise.all([claude.use("db"),claude.use("user")]);if(!db||!us)return;const id=await us.id();if(!id)return;
 ref=db.doc("data/users/"+id+"/state");const s=await ref.get();let j=null;if(s.exists){try{j=JSON.parse(s.data().json)}catch(e){}}
