@@ -408,7 +408,7 @@ $("#set").innerHTML=h}
 const RM=matchMedia("(prefers-reduced-motion:reduce)").matches,GH={ds:"Смены",stu:"Ставки",rw:"Довоз",rent:"Вычеты и премия"};
 const isFut=(y,m,d)=>{const n=new Date();return new Date(y,m-1,d)>new Date(n.getFullYear(),n.getMonth(),n.getDate())};
 function hdrs(){for(const k in GH){const e=$("#set [data-k="+k+"]");if(e)e.closest(".row").insertAdjacentHTML("beforebegin",`<div class="gh">${GH[k]}</div>`)}}
-function earnedBar(m,tot){if(!isCurMonth())return"";const t=new Date().getDate();let e=0;for(let d=1;d<=t;d++)e+=hrs(m,d)*rate(m)+rideOf(m,d);const p=tot>0?Math.max(0,Math.min(100,e/tot*100)):0;return `<div class="earn"><div class="eb"><i style="width:${p}%"></i></div><div class="info">Заработано: ${money(e)} из ${money(tot)}</div></div>`}
+function earnedBar(m,tot){if(!isCurMonth())return"";const t=new Date().getDate();let e=0;for(let d=1;d<=t;d++)e+=hrs(m,d)*rate(m)+rideOf(m,d);e+=m.set.prem-m.set.rent;const p=tot>0?Math.max(0,Math.min(100,e/tot*100)):0;return `<div class="earn"><div class="eb"><i style="width:${p}%"></i></div><div class="info">Заработано: ${money(e)} из ${money(tot)}</div></div>`}
 function cu(){if(RM)return;document.querySelectorAll("#sum [data-n]").forEach(el=>{const v=+el.dataset.n;if(!isFinite(v))return;const t0=performance.now();(function s(t){const k=Math.min(1,(t-t0)/700);el.innerHTML=money(v*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)})}
 let fx=false;
 async function envFx(rev,r0){if(RM||fx||!Element.prototype.animate)return;fx=true;
