@@ -300,6 +300,10 @@ transform:translateX(calc(var(--i,0)*100%));transition:transform .55s cubic-bezi
 :root[data-theme="dark"] .dots::before{box-shadow:0 2px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 1px rgba(255,255,255,.05)}
 :root[data-theme="dark"] .dots::after{opacity:.22}
 #pg>#pgs.act{max-height:calc(100dvh - 72px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));padding-bottom:120px;box-sizing:border-box;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.c.sel,.c.fut.sel{border:2px solid transparent;box-shadow:none;animation:none;opacity:1}
+#cc{position:relative;isolation:isolate}
+#ring{position:absolute;box-sizing:border-box;border:2px solid var(--ac);border-radius:11px;pointer-events:none;z-index:20;animation:pop .3s}
+#cc .c>*{pointer-events:none}
 </style></head>
 <body><main>
 <div class="card head"><button class="nav" data-a="pm">‹</button><h1 id="t" data-a="today" style="cursor:pointer"></h1><button class="nav" data-a="nm">›</button></div>
@@ -357,7 +361,9 @@ const lead=LD(off,ND()),trail=42-lead-ND();for(let i=0;i<lead;i++){const a=new D
 for(let d=1;d<=ND();d++){const o=m.d[d]||{},L=o.s||"w";h+=`<div class="c ${o.s||""}${o.s&&isFut(Y(),MO(),d)?" fut":""}${d===(idx===sc?sel:-1)?" sel":""}${isCurMonth()&&d===new Date().getDate()?" today":""}" data-a="day" data-d="${d}"><b>${d}</b>${cellIn(o)}</div>`}
 for(let i=1;i<=trail;i++){const a=new Date(Y(),MO()-1,ND()+i);h+=adjCell(a.getFullYear(),a.getMonth()+1,a.getDate())}
 return h}finally{cur=sc}}
-function renderCal(){$("#cc").innerHTML=calHTML(cur)}
+function renderCal(){$("#cc").innerHTML=calHTML(cur)+'<div id="ring"></div>';posRing()}
+function posRing(){const cc=$("#cc"),r=$("#ring"),c=cc&&cc.querySelector(".c.sel");if(!r)return;if(!c){r.style.display="none";return}const a=c.getBoundingClientRect(),b=cc.getBoundingClientRect();if(!a.width)return;r.style.cssText="left:"+(a.left-b.left-1)+"px;top:"+(a.top-b.top-1)+"px;width:"+(a.width+2)+"px;height:"+(a.height+2)+"px"}
+window.addEventListener("resize",()=>posRing());
 function info(){const m=M(),h=hrs(m,sel),e=$("#inf");let H=0;for(let d=1;d<=ND();d++)H+=hrs(m,d);if(e)e.innerHTML=`<span>Смена: ${money(h*rate(m))} · ${ci(CAR)} ${money(rideOf(m,sel))}</span>`}
 function renderEd(){const m=M(),o=m.d[sel]||{},auto=o.s==="D"?mod(m.set.de-m.set.ds):o.s==="N"?mod(m.set.ne-m.set.ns):0;
 $("#ed").innerHTML=`<div class="edh"><h2>${WD[wdOf(sel)]}, ${sel} ${RU[MO()-1].toLowerCase().replace(/ь$/,"я").replace(/т$/,"та").replace(/й$/,"я")}</h2><div class="info" id="inf"></div></div>
@@ -444,7 +450,7 @@ if(a==="bkno"){bkPend=null;bkRender();return}
 if(a==="pg"){setPg(+t.dataset.v);return}
 if(a==="qm"){toggleQm();return}
 if(a==="qv"){qv=t.dataset.v;renderQk();return}
-if(a==="day"&&qm){const dd=+t.dataset.d,oo=m.d[dd]||(m.d[dd]={});if(qv==="R")oo.r=oo.r?0:1;else{oo.s=(qv&&oo.s===qv)?"":qv;if(!oo.s)oo.h=""}sel=dd;save();renderCal();renderEd();renderSum();return}
+if(a==="day"&&qm){if(Date.now()-pntT<300)return;const dd=+t.dataset.d,oo=m.d[dd]||(m.d[dd]={});if(qv==="R")oo.r=oo.r?0:1;else{oo.s=(qv&&oo.s===qv)?"":qv;if(!oo.s){oo.h="";if(!qv)oo.r=0}}sel=dd;save();renderCal();renderEd();renderSum();return}
 if(a==="day"){sel=+t.dataset.d;renderCal();renderEd();setPg(0);return}
 const o=m.d[sel]||(m.d[sel]={});
 if(a==="sh"){o.s=o.s===t.dataset.v?"":t.dataset.v;if(!o.s)o.h=""}if(a==="rd")o.r=Math.max(0,Math.min(3,(o.r||0)+ +t.dataset.v));
@@ -452,7 +458,7 @@ save();renderCal();renderEd();renderSum()});
 document.addEventListener("input",e=>{const t=e.target,m=M();
 if(t.dataset.f){const o=m.d[sel]||(m.d[sel]={});if(t.dataset.f==="h"&&!o.s)return;o[t.dataset.f]=t.value;save();info();renderSum();if(t.dataset.f==="c"||t.dataset.f==="h")renderCal();return}
 if(t.dataset.k){const k=t.dataset.k;if(t.tagName==="SELECT")m.set[k]=t.value;else{const v=f(t.value);if(t.value===""||isNaN(v))return;m.set[k]=v}save();if(t.tagName==="SELECT"&&k==="abs"){renderSum();return}renderSum();info()}});
-let lastK="",cmsg=null,pg=0,qm=false,qv="D",sumTab=0,bkPend=null;const PT=["День","Итоги","Настройки","Недели"];
+let pntT=0,lastK="",cmsg=null,pg=0,qm=false,qv="D",sumTab=0,bkPend=null;const PT=["День","Итоги","Настройки","Недели"];
 const IC=[`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><rect x="8" y="13" width="4" height="4" rx="1" fill="currentColor"/>`,`<path d="M5 20V10M12 20V4M19 20v-7"/>`,`<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>`,`<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7 14h10M7 17.5h10"/>`],QI=`<path d="M4 20l1-4L16 5a2 2 0 013 3L8 19l-4 1z"/><path d="M14 7l3 3"/>`;
 const svg=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 function setPg(i){qm=false;$("#qk").classList.remove("act");$("#pg").classList.remove("hide");pg=Math.max(0,Math.min(3,i));[...$("#pg").children].forEach((e,k)=>e.classList.toggle("act",k===pg));updCal();renderDots();if(pg===1){lastK="";renderSum()}}
@@ -460,7 +466,7 @@ function renderDots(){const d=$("#dots");if(!d.children.length)d.innerHTML=rd0()
 function rd0(){return PT.map((t,k)=>`<button data-a="pg" data-v="${k}" class="${!qm&&k===pg?"on":""}" title="${t}" aria-label="${t}">${svg(IC[k])}<em>${t}</em></button>`).join("")+`<button class="qb${qm?" on":""}" data-a="qm" title="Быстрое редактирование" aria-label="Быстрое редактирование">${svg(QI)}</button>`}
 function renderQk(){$("#qk").innerHTML=`<div class="seg" style="margin:0">${[["D",SUN,"День"],["N",MOON,"Ночь"],["",HOME,"Выходной"],["R",CAR,"Довоз"]].map(([v,p,l])=>`<button data-a="qv" data-v="${v}" title="${l}" aria-label="${l}" class="${qv===v?"on":""}">${ci(p)}<span class="lb">${l}</span></button>`).join("")}</div>`}
 function toggleQm(){qm=!qm;$("#qk").classList.toggle("act",qm);$("#pg").classList.toggle("hide",qm);if(qm)renderQk();updCal();renderDots()}
-function updCal(){$("#calc").classList.toggle("hide",pg!==0&&!qm)}
+function updCal(){$("#calc").classList.toggle("hide",pg!==0&&!qm);posRing()}
 (function(){const vp=$("#vp"),cc=$("#cc"),st=$("#st");$("#hd").innerHTML=WD.map((w,i)=>`<div class="hd${i>4?" we":""}">${w}</div>`).join("");
 const DAY=864e5,has=d=>true;
 const wl=i=>{const[y,m]=MA(i),nd=new Date(y,m,0).getDate(),off=(new Date(y,m-1,1).getDay()+6)%7;return LD(off,nd)};
@@ -475,8 +481,8 @@ const pitch=cc.querySelector(".c").offsetHeight+4;P={a0:rowOf(s,cur),a1:has(1)?r
 vp.style.height=vp.offsetHeight+"px";st.innerHTML=h;st.className="cal";st.style.display="grid";cc.style.visibility="hidden";setS(0,0)}
 function setS(y,p){st.style.transform=`translateY(${-P.a0*P.pitch+y}px)`;st.style.setProperty("--pn",y<0?p:0);st.style.setProperty("--pp",y>0?p:0);st.style.setProperty("--q",p)}
 function closeS(){st.style.display="none";st.innerHTML="";st.className="cal";cc.style.visibility="";vp.style.height="";P=null}
-vp.addEventListener("touchstart",e=>{if(busy||e.touches.length!==1)return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();dy=0;lk=null},{passive:true});
-vp.addEventListener("touchmove",e=>{if(busy||e.touches.length!==1)return;const t=e.touches[0],mx=t.clientX-x0,my=t.clientY-y0;
+vp.addEventListener("touchstart",e=>{if(busy||qm||e.touches.length!==1)return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();dy=0;lk=null},{passive:true});
+vp.addEventListener("touchmove",e=>{if(busy||qm||e.touches.length!==1)return;const t=e.touches[0],mx=t.clientX-x0,my=t.clientY-y0;
 if(lk===null){if(Math.abs(mx)<8&&Math.abs(my)<8)return;lk=Math.abs(my)>Math.abs(mx)?"v":"h";if(lk==="v")openS()}
 if(lk!=="v")return;dy=my;const up=dy<0,D=has(up?1:-1)?(up?P.a1-P.a0:P.a0-P.am)*P.pitch:0;
 if(D<=0){setS(dy*.25,0);return}const a=Math.min(Math.abs(dy),D);setS(up?-a:a,a/D)},{passive:true});
@@ -487,6 +493,27 @@ setTimeout(()=>{if(go){cur+=dir;sel=1;all()}closeS();busy=false},280)}
 vp.addEventListener("touchend",()=>endS(false));vp.addEventListener("touchcancel",()=>endS(true));
 })();
 ["gesturestart","gesturechange","gestureend"].forEach(n=>document.addEventListener(n,e=>e.preventDefault()));
+
+/* быстрое редактирование: протяжка пальцем по дням */
+(function(){const vp=$("#vp");let g=null;
+const cellAt=(x,y)=>{const el=document.elementFromPoint(x,y);return el&&el.closest?el.closest('#cc .c[data-a="day"]'):null};
+function upd(c,d,o){c.className="c "+(o.s||"")+(o.s&&isFut(Y(),MO(),d)?" fut":"")+(d===sel?" sel":"")+(isCurMonth()&&d===new Date().getDate()?" today":"");c.innerHTML="<b>"+d+"</b>"+cellIn(o)}
+function paint(c){const d=+c.dataset.d;if(g.seen.has(d))return;g.seen.add(d);const m=M(),o=m.d[d]||(m.d[d]={});
+if(qv==="R")o.r=g.rv;else if(qv===""){o.s="";o.h="";o.r=0}else o.s=qv;
+g.last=d;upd(c,d,o)}
+vp.addEventListener("touchstart",e=>{g=null;if(!qm||e.touches.length!==1)return;const t=e.touches[0],c=cellAt(t.clientX,t.clientY);
+g={x0:t.clientX,y0:t.clientY,px:t.clientX,py:t.clientY,start:c,on:false,seen:new Set(),last:null,rv:1};
+if(c){const o=M().d[+c.dataset.d]||{};g.rv=o.r?0:1}},{passive:true});
+vp.addEventListener("touchmove",e=>{if(!g||!qm||e.touches.length!==1)return;const t=e.touches[0];
+if(!g.on){if(Math.hypot(t.clientX-g.x0,t.clientY-g.y0)<10)return;g.on=true;if(g.start)paint(g.start)}
+e.preventDefault();
+const dx=t.clientX-g.px,dy=t.clientY-g.py,n=Math.max(1,Math.ceil(Math.hypot(dx,dy)/8));
+for(let i=1;i<=n;i++){const c=cellAt(g.px+dx*i/n,g.py+dy*i/n);if(c)paint(c)}
+g.px=t.clientX;g.py=t.clientY},{passive:false});
+const fin=e=>{if(!g)return;const on=g.on,last=g.last;g=null;if(!on)return;pntT=Date.now();if(e.cancelable)e.preventDefault();
+if(last!==null)sel=last;save();renderCal();renderEd();renderSum()};
+vp.addEventListener("touchend",fin,{passive:false});vp.addEventListener("touchcancel",fin,{passive:false});
+})();
 /* свайп влево/вправо — переключение вкладок */
 (function(){let sx=0,sy=0,st=0,ok=false;
 const bad=t=>{for(let n=t;n&&n!==document.body;n=n.parentElement){if(/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)||n.isContentEditable)return true;if(n.scrollWidth>n.clientWidth+2&&/(auto|scroll)/.test(getComputedStyle(n).overflowX))return true}return false};
